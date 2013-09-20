@@ -1,0 +1,1 @@
+Noise gremlins allow injection of delays ranging from nanoseconds to milliseconds and can be specified as part of a specified random, time-dependent distribution.  As core counts increase by multiple orders of magnitude, rare noise events become more common.  This gremlin allows us to simulate what noise might be like on an exascale cluster.

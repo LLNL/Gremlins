@@ -1,0 +1,1 @@
+Latency gremlins expose the PEBS interface on Intel processors to allow us high-fidelity, per-load latency measurements.  We are exploring several options that will allow us to degrade latency, thus simulating the more complex memory hierarchies in future exascale designs.
