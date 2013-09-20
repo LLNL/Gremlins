@@ -1,0 +1,34 @@
+-------------------------------------------------------------------------------
+
+                                   GREMLINs
+              Emulating Exascale Conditions on Today's Platforms
+
+-------------------------------------------------------------------------------
+
+1. INTRODUCTION
+
+The GREMLINs emulate the behavior of anticipated future architectures on 
+current machines. We focus on the impact of resource limitations (by 
+artificially restricting them), as well as noise and faults by using injection 
+techniques--these issues are generally expected to be the dominating challenges 
+in future machine generations.
+
+We have four different classes of GREMLINS: 
+
+(1) Power: artificially reduce the operating power using DVFS or cap power on a 
+per node basis; 
+(2) Memory: limit resources in the memory hierarchy such as cache size or 
+memory bandwidth by running interference threads; 
+(3) Reselience: inject faults into target applications and enable us to study 
+the efficiency and correctness of recovery techniques;
+(4) Noise: inject periodic or random noise events to emulate system and OS 
+interference
+
+
+2. CODE STRUCTURE
+
+
+3. INSTALL
+
+For installation details, take a look at the INSTALL file.
+
