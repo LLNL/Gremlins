@@ -1,0 +1,26 @@
+Livermore Unstructured Lagrange Explicit Shock Hydrodynamics (LULESH) v1.0
+
+LULESH v1.0 is a C++ 3D Finite Element Lagrange Hydrodynamics code
+solving the inviscid Euler equations using artificial viscosity and
+Flanagan-Belytschko-type hourglass control. It solves a standard
+analytical test problem, known as the Sedov problem.  In this problem,
+a quantum of energy is deposited into a gas and propagates through the
+gas over time.
+
+The code is a benchmark to be used to evaluate advanced architectures
+and does not purport to be accurate to materials science models or
+processes.  It attempts to capture representative floating point and
+memory access behavior of 3d continuum hydrodynamic software.
+
+Modify the makefile if necessary to select a different C compiler.
+  
+  To make:
+
+      make
+
+  To run:
+
+      ./lulesh
+
+  This program should run in ~8 minutes under Linux on a 2.4 GHZ x86
+  processor.

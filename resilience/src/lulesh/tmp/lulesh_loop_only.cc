@@ -91,7 +91,6 @@ void Release(T **ptr)
 static inline
 void TimeIncrement()
 {
-
    Real_t targetdt = domain.stoptime() - domain.time() ; _checkFault_();
 
    if ((domain.dtfixed() <= Real_t(0.0)) && (domain.cycle() != Int_t(0))) {
@@ -148,7 +147,6 @@ void InitStressTermsForElems(const Index_t numElem,
    for (Index_t i = 0 ; i < numElem ; ++i){
       sigxx[i] =  sigyy[i] = sigzz[i] =  - domain.p(i) - domain.q(i) ;
    }
-
 }
 
 static inline
@@ -239,7 +237,6 @@ void CalcElemShapeFunctionDerivatives( const Real_t* const x,
 
   /* calculate jacobian determinant (volume) */
   *volume = Real_t(8.) * ( fjxet * cjxet + fjyet * cjyet + fjzet * cjzet);
-
 }
 
 static inline
@@ -252,7 +249,6 @@ void SumElemFaceNormal(Real_t *normalX0, Real_t *normalY0, Real_t *normalZ0,
                        const Real_t x2, const Real_t y2, const Real_t z2,
                        const Real_t x3, const Real_t y3, const Real_t z3)
 {
-
    Real_t bisectX0 = Real_t(0.5) * (x3 + x2 - x1 - x0);
    Real_t bisectY0 = Real_t(0.5) * (y3 + y2 - y1 - y0);
    Real_t bisectZ0 = Real_t(0.5) * (z3 + z2 - z1 - z0);
@@ -288,7 +284,6 @@ void CalcElemNodeNormals(Real_t pfx[8],
                          const Real_t y[8],
                          const Real_t z[8])
 {
-
    for (Index_t i = 0 ; i < 8 ; ++i) {
       pfx[i] = Real_t(0.0);
       pfy[i] = Real_t(0.0);
@@ -391,7 +386,6 @@ void SumElemStressesToNodeForces( const Real_t B[][8],
   fz[6] = -( stress_zz * pfz6 );
   fz[7] = -( stress_zz * pfz7 );
 
-  //RECOVER
 }
 
 static inline
@@ -962,7 +956,6 @@ void CalcFBHourglassForceForElems(const Real_t *const determ,
 static inline
 void CalcHourglassControlForElems(Real_t determ[], const Real_t hgcoef)
 {
-
    Index_t i, ii, jj ;
    Real_t  x1[8],  y1[8],  z1[8] ;
    Real_t pfx[8], pfy[8], pfz[8] ;
@@ -1068,7 +1061,6 @@ static inline void CalcForceForNodes()
 
   /* Calculate Nodal Forces at domain boundaries */
   /* problem->commSBN->Transfer(CommSBN::forces); */
-
 }
 
 static inline
@@ -1081,7 +1073,6 @@ void CalcAccelerationForNodes()
       domain.ydd(i) = domain.fy(i) / domain.nodalMass(i);
       domain.zdd(i) = domain.fz(i) / domain.nodalMass(i);
    }
-
 }
 
 static inline
@@ -1097,13 +1088,11 @@ void ApplyAccelerationBoundaryConditionsForNodes()
 
   for(Index_t i=0 ; i<numNodeBC ; ++i)
      domain.zdd(domain.symmZ(i)) = Real_t(0.0) ;
-
 }
 
 static inline
 void CalcVelocityForNodes(const Real_t dt, const Real_t u_cut)
 {
-
    Index_t numNode = domain.numNode() ;
 
    for ( Index_t i = 0 ; i < numNode ; ++i )
@@ -1143,7 +1132,6 @@ void CalcPositionForNodes(const Real_t dt)
 static inline
 void LagrangeNodal()
 {
-
   const Real_t delt = domain.deltatime() ; _checkFault_();
   Real_t u_cut = domain.u_cut() ;
 
@@ -1160,7 +1148,6 @@ void LagrangeNodal()
   CalcPositionForNodes( delt ); _checkFault_();
 
   return;
-
 }
 
 static inline
@@ -1247,7 +1234,6 @@ Real_t CalcElemVolume( const Real_t x0, const Real_t x1,
   volume *= twelveth;
 
   return volume ;
-
 }
 
 /*
@@ -1270,7 +1256,6 @@ Real_t AreaFace( const Real_t x0, const Real_t x1,
                  const Real_t z0, const Real_t z1,
                  const Real_t z2, const Real_t z3)
 {
-
    Real_t fx = (x2 - x0) - (x3 - x1);
    Real_t fy = (y2 - y0) - (y3 - y1);
    Real_t fz = (z2 - z0) - (z3 - z1);
@@ -1283,7 +1268,6 @@ Real_t AreaFace( const Real_t x0, const Real_t x1,
       (fx * gx + fy * gy + fz * gz) *
       (fx * gx + fy * gy + fz * gz);
    return area ;
-
 }
 
 static inline
@@ -1328,7 +1312,6 @@ Real_t CalcElemCharacteristicLength( const Real_t x[8],
    charLength = Real_t(4.0) * volume / SQRT(charLength);
 
    return charLength;
-
 }
 
 static inline
@@ -1791,7 +1774,6 @@ void CalcMonotonicQRegionForElems(// parameters
       domain.qq(i) = qquad ;
       domain.ql(i) = qlin  ;
    }
-
 }
 
 static inline
@@ -1822,6 +1804,7 @@ void CalcMonotonicQForElems()
                            // the elemset length
                            elength );
    }
+
 }
 
 static inline
@@ -2034,7 +2017,6 @@ void CalcSoundSpeedForElems(const Real_t * const vnewc,
 		Real_t ss4o3,
 		const Index_t nz)
 {
-
    for (Index_t i = 0; i < nz ; ++i) {
       Index_t iz = domain.matElemlist(i);
       Real_t ssTmp = (pbvc[i] * enewc[i] + vnewc[i] * vnewc[i] *
@@ -2335,16 +2317,19 @@ void CalcHydroConstraintForElems()
    }
 
    return ;
+
 }
 
 static inline
 void CalcTimeConstraintsForElems() {
+
 
    /* evaluate time constraint */
    CalcCourantConstraintForElems() ;
 
    /* check hydro constraint */
    CalcHydroConstraintForElems() ; _checkFault_();
+
 }
 
 static inline
@@ -2362,13 +2347,14 @@ void LagrangeLeapFrog()
    CalcTimeConstraintsForElems();
 
    // LagrangeRelease() ;  Creation/destruction of temps may be important to capture 
+
 }
 
 int main(int argc, char *argv[])
 {
 	GREMLIN_initExperiment_();
-	signal(SIGUSR1, _setFault_);
-	signal(SIGUSR2, _unsetFault_);
+        signal(SIGUSR1, _setFault_);
+        signal(SIGUSR2, _unsetFault_);
 
 	/*
 	 * %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2381,7 +2367,7 @@ int main(int argc, char *argv[])
 	// restart
 	if (_thereIsAFault_()) {
 		domain = _d_;
-		_unsetFault_();
+		_unsetFault_(1);
 	}
 
 	/*
@@ -2602,10 +2588,28 @@ int main(int argc, char *argv[])
    cout << "\nEntering main loop\n";
    /* timestep to solution */
    while(domain.time() < domain.stoptime() ) {
-      TimeIncrement();
-      LagrangeLeapFrog();
-      cout << ".";
-      cout.flush();
+		/*
+		 * %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		 * Micro-checkpoint code
+		 */
+		// Checkpoint
+		Domain _d2_(domain);
+
+		TRY
+		// restart
+		if (_thereIsAFault_()) {
+			domain = _d2_;
+			_unsetFault_(1);
+		}
+		/*
+		 * %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		 */
+		TimeIncrement();
+		LagrangeLeapFrog();
+		cout << ".";
+		cout.flush();
+
+		RECOVER
    }
 
    checkCorrectness();

@@ -1,31 +1,14 @@
-CXX=g++
+include Makefile.config
 
-DEFS=-DLULESH_SHOW_PROGRES
-
-CFLAGS=-O3 -c -g -fexceptions -fnon-call-exceptions -pthread
-LDFLAGS=-O3 -fexceptions -fnon-call-exceptions -pthread
-
-all: lulesh_main_only.o lulesh_core_functions.o lulesh_loop_only.o lulesh_iterations_based.o lulesh.o
-	$(CXX) $(LDFLAGS) lulesh_main_only.o -lm -o lulesh_main_only 
-	$(CXX) $(LDFLAGS) lulesh_core_functions.o -lm -o lulesh_core_functions
-	$(CXX) $(LDFLAGS) lulesh_loop_only.o -lm -o lulesh_loop_only
-	$(CXX) $(LDFLAGS) lulesh_iterations_based.o -lm -o lulesh_iterations_based
-	$(CXX) $(LDFLAGS) lulesh.o -lm -o lulesh
-
-lulesh_main_only.o: lulesh_main_only.cc lulesh.h
-	$(CXX) $(DEFS) $(CFLAGS) lulesh_main_only.cc
-
-lulesh_loop_only.o: lulesh_loop_only.cc lulesh.h
-	$(CXX) $(DEFS) $(CFLAGS) lulesh_loop_only.cc
-
-lulesh_core_functions.o: lulesh_core_functions.cc lulesh.h
-	$(CXX) $(DEFS) $(CFLAGS) lulesh_core_functions.cc
-
-lulesh_iterations_based.o: lulesh_iterations_based.cc lulesh.h
-	$(CXX) $(DEFS) $(CFLAGS) lulesh_iterations_based.cc
-
-lulesh.o: lulesh.cc lulesh.h
-	$(CXX) $(DEFS) $(CFLAGS) lulesh.cc
+all:
+	cd src && $(MAKE) $@
 
 clean:
-	rm -f *~ *.o lulesh_main_only lulesh_core_functions lulesh_loop_only lulesh_iterations_based lulesh
+	cd src && $(MAKE) $@
+	rm -f $(CURDIR)/lib/*
+
+install: 
+	install -d $(CURDIR)/lib
+	install $(CURDIR)/src/fault_injector/*.so $(CURDIR)/lib/
+
+.PHONY: all clean install

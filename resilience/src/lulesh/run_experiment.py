@@ -5,7 +5,7 @@ import sys
 import os
 
 def parseOptions():
-    usage = "usage: %prog [options] [program]"
+    usage = "usage: %prog [options] <program> <injection_lib>"
     parser = optparse.OptionParser(usage)
     
     parser.add_option("-e","--error-rate", dest="RATE",
@@ -30,7 +30,9 @@ def main():
     # Parse options
     (options, args) = parseOptions()
     program = args[0]
-    
+
+    os.environ["LD_LIBRARY_PATH"] = args[1]
+
     # Set enviroment variables
     errorRate = options.RATE
     os.environ["FAULT_RATE"] = errorRate

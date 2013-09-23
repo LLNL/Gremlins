@@ -58,7 +58,7 @@ void _copy_array_(const T * const src, T * const dst, P size)
 	}
 }
 
-void _setFault_(int sign)
+void _setFault_(int s)
 {
 //#ifndef NEW_STD
 //	assert(pthread_mutex_lock( &_faultMutex_) == 0);
@@ -69,7 +69,7 @@ void _setFault_(int sign)
 //#endif
 }
 
-void _unsetFault_(int sign)
+void _unsetFault_(int s)
 {
 //#ifndef NEW_STD
 //	assert(pthread_mutex_lock( &_faultMutex_) == 0);
@@ -100,6 +100,17 @@ void _checkFault_() {
 		cout.flush();
 		throw exception();
 	}
+}
+
+long int _getRollbackIterations_()
+{
+        long int ret = 50;
+        const char *buff = getenv("ROLLBACK_ITERATIONS");
+        if (buff != NULL) {
+                ret = atoi(buff);
+        }
+        cout << "Num. iterations to rollback: " << ret << endl;
+        return ret;
 }
 
 /*

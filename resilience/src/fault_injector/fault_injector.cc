@@ -11,8 +11,13 @@
 #include <pthread.h>
 #include <time.h>
 #include <stdlib.h>
+#include <signal.h>
+#include <math.h>
+#include <time.h>
+#include <sys/time.h>
+#include <stdio.h>
 
-#define NULL 0
+#include <iostream>
 
 using namespace std;
 
@@ -37,7 +42,6 @@ pthread_t _faultyThreadID_;
  */
 void * GREMLIN_faultInjectorThread_(void *args);
 void GREMLIN_initFIEngine_();
-long int GREMLIN_getRollbackIterations_();
 void GREMLIN_getTimeFlag_();
 void GREMLIN_setSleepTime_(struct timespec *requested_time);
 void GREMLIN_setFault_();
@@ -50,7 +54,7 @@ void * GREMLIN_faultInjectorThread_(void *args) {
 	while(true) {
 		(_faultsCounter_ != 0) ? GREMLIN_setFault_() : GREMLIN_unsetFault_();
 		_faultsCounter_++;
-		_setSleepTime_(&requested_time);
+		GREMLIN_setSleepTime_(&requested_time);
 
 		if (_printNextInjectionTime_)
 			cout << "[Next fault in " << requested_time.tv_sec << " sec] ";
@@ -111,7 +115,7 @@ void GREMLIN_initFIEngine_() {
 	{
 		int ret = pthread_create(&_faultyThreadID_,
 				NULL,
-				_faultInjectorThread_,
+				GREMLIN_faultInjectorThread_,
 				NULL);
 		if (ret != 0) {
 			cout << "Error creating fault-injector thread!" << endl;
@@ -120,20 +124,8 @@ void GREMLIN_initFIEngine_() {
 	}
 }
 
-long int GREMLIN_getRollbackIterations_()
-{
-	long int ret = 50;
-	const char *buff = getenv("ROLLBACK_ITERATIONS");
-	if (buff != NULL) {
-		ret = atoi(buff);
-	}
-	cout << "Num. iterations to rollback: " << ret << endl;
-	return ret;
-}
-
 void GREMLIN_getTimeFlag_()
 {
-	long int ret = 50;
 	const char *buff = getenv("PRINT_INJECTION_TIME");
 	if (buff != NULL) {
 		_printNextInjectionTime_ = true;
