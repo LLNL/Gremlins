@@ -1,0 +1,9 @@
+##Do not remove this file or git cannot track this folder.
+BUILD directory for out of source build.
+use the following command to build configurations, and makefiles:
+
+cmake .. -DLIBMSR_HOME=/*YOUR_PATH_TO_LIBMSR_HOME*/libmsr -DCMAKE_INSTALL_PREFIX=../INSTALL -DCMAKE_BUILD_TYPE=RelWithDebugInfo
+make 
+make install 
+
+make install will copy the executables and libraries to the INSTALL folder.

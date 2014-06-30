@@ -27,8 +27,56 @@ interference
 
 2. CODE STRUCTURE
 
+\gremlin-release
+ \BUILD
+ \cmakefiles
+ \latency  
+ \memory
+ \noise
+ \power
+ \resilience
+ \thermal
+ |-CMakeList.txt
+ |-LICENSE
+ |-README
+
+The cmakefiles folder contains cmake specifications. The BUILD folder is used for out of source builds.
+
+All other folders should be named according to the resource they focus on.
+In each of these the CMakeList.txt describes how the gremlins in the folder are built.
+There should be at least one gremlin that measures the resource and one that controlls or influences it.
+
+
 
 3. INSTALL
 
-For installation details, take a look at the INSTALL file.
+Build using cmake
+
+E.g.:
+mkdir BUILD
+cd BUILD
+cmake .. -DLIBMSR_HOME=/*YOUR_PATH_TO_LIBMSR_HOME*/libmsr -DCMAKE_INSTALL_PREFIX=../INSTALL -DCMAKE_BUILD_TYPE=RelWithDebugInfo
+make 
+make install 
+
+This will create a BUILD directory and configure all out of source configure files.
+Calling make in the BUILD directory creates the files as specified by cmake.
+make install copies the binaries to the INSTALL folder.
+
+For changes see the cmake manual or use ccmake in the BUILD directory
+
+
+The structure of the INSTALL folder is
+\INSTALL
+ \lib
+
+,where lib contains all dynamic linked libraries.
+
+
+
+These libraries can be used using LD_PRELOAD:
+
+export LD_PRELOAD=$INSTALL/lib/libPowerMeter.so  
+srun -n 16 ./helloMPI
+export LD_PRELOAD=""
 
