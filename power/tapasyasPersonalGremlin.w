@@ -95,17 +95,6 @@ void printData(int i);
 	{{callfn}}
 {{endfn}}
 
-int get_env_int(const char *name, int *val){
- 	char *str=NULL;
-        str = getenv(name);
-        if(str ==NULL){
-          *val = -1;
-          return -1;
-        }
-        *val = (int) strtol(str, (char **)NULL, 0);
-        return 0;
-}
-
 void printData(int i)
 {
 	signal(SIGALRM, printData);
