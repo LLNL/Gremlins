@@ -42,6 +42,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <errno.h>
 
 #include "utils.h"
 
@@ -72,4 +73,75 @@ void get_cpuinfo_entry(int processor, char key[], char value[]){
         tok = strtok(NULL,":"); // only works because the lines are in the format "description : value"
         strcpy(value,tok);
         fclose(fp);
+}
+
+
+/*
+ * getfileID(int rank):
+ * get a common file pointer for each rank
+ * - to aquire a filepointer call with using rank (a new fp will be returned or if another gremlin created it that one will be returned)
+ * - to return the previously aquired filepoint, pass -1 
+ * - to close that filepointer use -2. If others are still using the pointer it will not be close but flushed. 
+ */
+FILE *getFileID(int rank){
+	static FILE* writeFile;
+	static int refcount = 0;
+
+	switch(rank){
+		case -1: 	//getID
+		{
+			if(writeFile == NULL){
+				printf("File was not opened or is closed!\n");
+			}
+			return writeFile;
+			break;
+		}
+	 	case -2:	//close
+		{
+			if(writeFile!=NULL){
+				refcount--;
+				fflush(writeFile);
+				if(refcount==0){
+					fclose(writeFile);
+					writeFile=NULL;
+				}
+			}
+			return writeFile;
+			break;
+		}
+		default:	// rank>=0 open
+		{
+			refcount++;
+			if(writeFile != NULL){
+				return writeFile; 
+			}
+			char *filePath=NULL;
+			char hname[1025];
+		
+		        gethostname(hname, 1024);
+		
+		        filePath = getenv("NODE_OUTPUT_PATH");
+		
+		        if (filePath != NULL){
+		        	char fileName[4096];
+		        	sprintf(fileName, "%s%s%s%d%s", filePath, hname,"_",rank, "_gremlin.out");
+		        	writeFile = fopen(fileName, "a");
+		
+		        	if (writeFile == NULL){
+		        	fprintf(stderr, "Failure in opening file for %s. Errno: %d. We are just going to use stdout as our output now\n", hname, errno);
+		        		if (errno == ENOENT){
+		                		fprintf(stderr, "It appears as though the directory path to the file does not exist (%s). Try ensuring it exists, then try again.\n", filePath);
+		                	}
+		                	writeFile = stdout;
+		         	}
+		        } else {
+		        	fprintf(stderr, "It appears as though the directory to dump per-node power readings isn't set. Please set the environment variable NODE_OUTPUT_PATH to be the correct path. Now we are just going to use stdout as our output\n");
+		                writeFile = stdout;
+		        }
+		
+			return writeFile;
+			break;		
+		}
+	}
+
 }

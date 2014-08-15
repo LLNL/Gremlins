@@ -47,6 +47,8 @@
 #include <unistd.h>
 #include <stdint.h>
 
+#include "utils.h"
+
 #include "msr_core.h"
 #include "msr_rapl.h"
 
@@ -54,6 +56,9 @@
 static struct itimerval tout_val;
 static int rank;
 static int size;
+
+int retVal;
+static int procsPerPackage;
 
 #ifndef SET_UP
 static struct timeval startTime;
@@ -67,10 +72,21 @@ void printData(int i);
 	{{callfn}}
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
-	if(rank == 0)
+ 	
+	retVal = get_env_int("PROCS_PER_PACKAGE",&procsPerPackage);
+	if(retVal<0){
+		char entry[3];
+		int cpuid = sched_getcpu();
+	        get_cpuinfo_entry(cpuid,"siblings",entry);
+		procsPerPackage = atoi(entry); //value of siblings is stored as procsPerPackage
+		fprintf(stderr,"PROCS_PER_PACKAGE not set! Assuming %d processor per package. Set environment vaiable!\n",procsPerPackage);
+        }
+
+	
+	if(rank % procsPerPackage == 0)
 	{	
-		init_msr();	
-		
+		FILE *writeFile = getFileID(rank);	
+		init_msr();		
 		reset_tout_val();
 		setitimer(ITIMER_REAL, &tout_val, 0);
 		
@@ -82,7 +98,8 @@ void printData(int i);
 
 {{fn foo MPI_Finalize}}
 	PMPI_Barrier(MPI_COMM_WORLD);
-	if(rank == 0)
+	
+	if(rank % procsPerPackage == 0)
 	{
 		tout_val.it_interval.tv_sec = 0;
         	tout_val.it_interval.tv_usec = 0;
@@ -90,6 +107,7 @@ void printData(int i);
         	tout_val.it_value.tv_usec = 0;
 		setitimer(ITIMER_REAL, &tout_val, 0);
 		finalize_msr();
+		getFileID(-2);
 	}
 	{{callfn}}
 {{endfn}}
@@ -102,7 +120,10 @@ void printData(int i){
 		init = 1;
 		gettimeofday(&startTime, NULL);
 	}
-	
+///////////
+	FILE *writeFile = getFileID(-1);
+///////////	
+
 	struct rapl_data r1,r2;
 	
 	r1.flags=0;
@@ -116,7 +137,9 @@ void printData(int i){
 	read_rapl_data(0,&r1);
 	read_rapl_data(1,&r2);
 	
-	fprintf(stdout, "Power@%3.2lf PKG0/DRAM0/PKG1/DRAM1: %8.4lf %8.4lf %8.4lf %8.4lf\n",timeStamp, r1.pkg_watts, r1.dram_watts, r2.pkg_watts, r2.dram_watts); 
+	fprintf(writeFile, "Power@%3.2lf PKG0/DRAM0/PKG1/DRAM1: %8.4lf %8.4lf %8.4lf %8.4lf\n",timeStamp, r1.pkg_watts, r1.dram_watts, r2.pkg_watts, r2.dram_watts); 
+	
+	fflush(writeFile);
 	
 	reset_tout_val();		
 	setitimer(ITIMER_REAL, &tout_val, 0);

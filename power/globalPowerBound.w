@@ -73,12 +73,14 @@ static double timewindow = 0.0009766;
 static int retVal = -1;
 static struct rapl_limit lim; 
 
+static int procsPerPackage;
+
 int get_env_int(const char *name, int *val);
 void printData(int i);
 
 {{fn foo MPI_Init}}
 	{{callfn}}
-	int retVal,cpuid,powerbound_global,procsPerPackage;
+	int retVal,cpuid,powerbound_global;
         char entry[3];
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -98,10 +100,10 @@ void printData(int i);
 		get_cpuinfo_entry(cpuid,"physical id", entry);	
 		socket = atoi(entry);
 		
-		retVal = get_env_int("POWERBOUND_GLOBAL",&powerbound_global);
+		retVal = get_env_int("POWER_CAP_GLOBAL",&powerbound_global);
 		if(retVal<0) {
 			powerbound_global = watts* (size/procsPerPackage);
-			fprintf(stdout, "POWERBOUND_GLOBAL not set. Using default of %dW per socket. Set environment variable!\n",watts);
+			fprintf(stdout, "POWER_CAP_GLOBAL not set. Using default of %dW per socket. Set environment variable!\n",watts);
 		}
 
 	printf("2pPP%d\n",procsPerPackage);
@@ -118,7 +120,7 @@ void printData(int i);
 		}
 		get_rapl_limit(socket,&Px_1, &Px_2, &Px_DRAM);
 		fprintf(stdout, "PKG%d, Limit1\n",socket);
-		dump_rapl_limit(&Px_1);
+		dump_rapl_limit(&Px_1,stdout);
 
 	} 
 	PMPI_Barrier(MPI_COMM_WORLD);
@@ -127,7 +129,7 @@ void printData(int i);
 
 {{fn foo MPI_Finalize}}
 	PMPI_Barrier(MPI_COMM_WORLD);
-	if(rank == 0)
+	if(rank %procsPerPackage == 0)
 	{
 		finalize_msr;
 	}

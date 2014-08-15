@@ -10,4 +10,4 @@ include_directories(./utils)
 
 ADD_SUBDIRECTORY(power)
 ADD_SUBDIRECTORY(thermal)
-#ADD_SUBDIRECTORY(memory)
+ADD_SUBDIRECTORY(memory)

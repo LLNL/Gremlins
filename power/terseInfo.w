@@ -47,105 +47,114 @@
 #include <unistd.h>
 #include <stdint.h>
 
-#include "msr_core.h"
-#include "msr_thermal.h"
 #include "utils.h"
+
+#include "msr_core.h"
+#include "msr_rapl.h"
+
 
 static struct itimerval tout_val;
 static int rank;
 static int size;
+
+int retVal;
+static int procsPerPackage;
 
 #ifndef SET_UP
 static struct timeval startTime;
 static int init = 0;
 #endif
 
-static int procsPerPackage;
-
 void reset_tout_val();
 void printData(int i);
 
 {{fn foo MPI_Init}}
-        {{callfn}}
-        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-        MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-	int retVal;
-        retVal = get_env_int("PROCS_PER_PACKAGE",&procsPerPackage);
-        char entry[3];
-        if(retVal<0){
-		int cpuid=0;
-//        	int cpuid = sched_getcpu();
-                get_cpuinfo_entry(cpuid,"siblings",entry);
-                procsPerPackage = atoi(entry); //value of siblings is stored as procsPerPackage
-                fprintf(stderr,"PROCS_PER_PACKAGE not set! Assuming %d processor per package. Set environment vaiable!\n",procsPerPackage);
+	{{callfn}}
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+ 	
+	retVal = get_env_int("PROCS_PER_PACKAGE",&procsPerPackage);
+	if(retVal<0){
+		char entry[3];
+		int cpuid = sched_getcpu();
+	        get_cpuinfo_entry(cpuid,"siblings",entry);
+		procsPerPackage = atoi(entry); //value of siblings is stored as procsPerPackage
+		fprintf(stderr,"PROCS_PER_PACKAGE not set! Assuming %d processor per package. Set environment vaiable!\n",procsPerPackage);
         }
 
-
-        if(rank % procsPerPackage == 0)
-        {
-		FILE *writeFile;
-		writeFile = getFileID(rank);
-                init_msr();
-
-                reset_tout_val();
-                setitimer(ITIMER_REAL, &tout_val, 0);
-
-                signal(SIGALRM, printData);
-        }
-        PMPI_Barrier(MPI_COMM_WORLD);
+	
+	if(rank % procsPerPackage == 0)
+	{	
+		FILE *writeFile = getFileID(rank);	
+		init_msr();		
+		reset_tout_val();
+		setitimer(ITIMER_REAL, &tout_val, 0);
+		signal(SIGALRM, printData);
+	}
+	PMPI_Barrier(MPI_COMM_WORLD);
 {{endfn}}
 
 
 {{fn foo MPI_Finalize}}
-        PMPI_Barrier(MPI_COMM_WORLD);
-        if(rank % procsPerPackage == 0)
-        {
-                tout_val.it_interval.tv_sec = 0;
-                tout_val.it_interval.tv_usec = 0;
-                tout_val.it_value.tv_sec = 0;
-                tout_val.it_value.tv_usec = 0;
-                setitimer(ITIMER_REAL, &tout_val, 0);
-                finalize_msr();
+	PMPI_Barrier(MPI_COMM_WORLD);
+	
+	if(rank % procsPerPackage == 0)
+	{
+		tout_val.it_interval.tv_sec = 0;
+        	tout_val.it_interval.tv_usec = 0;
+        	tout_val.it_value.tv_sec = 0;
+        	tout_val.it_value.tv_usec = 0;
+		setitimer(ITIMER_REAL, &tout_val, 0);
+		finalize_msr();
 		getFileID(-2);
-        }
-        {{callfn}}
+	}
+	{{callfn}}
 {{endfn}}
 
 
 void printData(int i){
-        signal(SIGALRM, printData);
-
-        if(!init){
-                init = 1;
-                gettimeofday(&startTime, NULL);
-        }
-
-        struct timeval currentTime;
-        gettimeofday(&currentTime,NULL);
-
-        double timestamp = (double)(currentTime.tv_sec-startTime.tv_sec)+(currentTime.tv_usec-startTime.tv_usec)/1000000.0;
+	
+	if(!init){
+		init = 1;
+		gettimeofday(&startTime, NULL);
+	}
 
 	FILE *writeFile = getFileID(-1);
 
-	fprintf(writeFile, "Temp@%3.2lf: ",timestamp);
-//	fprintf(stderr, "Temp@%3.2lf: ",timestamp);
+	struct timeval currentTime;
+	gettimeofday(&currentTime,NULL);
+	double timeStamp = (double)(currentTime.tv_sec-startTime.tv_sec)+(currentTime.tv_usec-startTime.tv_usec)/1000000.0;
+	
+	fprintf(writeFile, "Timestamp: % 3.2lf\n", timeStamp);
+
+	fprintf(writeFile, "CoreTemp: ");
 	dump_thermal_terse(writeFile);
-//	dump_thermal_terse(stdout);
 	fprintf(writeFile, "\n");
+
+        fprintf(writeFile, "Power PKG0/DRAM0/PKG1/DRAM1: ");
+        dump_rapl_terse(writeFile);
+        fprintf(writeFile, "\n");
+
+        fprintf(writeFile, "ThreadFreq APERF/MPERF/TSC (16 Threads): ");
+        enable_fixed_counters();
+        dump_clocks_terse(writeFile);
+        fprintf(writeFile, "\n");
+
+        fprintf(writeFile, "ThreadCounters UCC/IR/URC (16 Threads): ");
+        dump_fixed_terse(writeFile);
+        fprintf(writeFile, "\n");	
+	 
 	fflush(writeFile);
-//	fprintf(stderr, "\n");
-	
-//	fclose(writeFile);
-	
-        reset_tout_val();
-        setitimer(ITIMER_REAL, &tout_val, 0);
+
+/* reseting signals not needed if it_interl is set! */	
+//	signal(SIGALRM, printData);
+//	reset_tout_val(); 	//	not needed with interval?
+//	setitimer(ITIMER_REAL, &tout_val, 0);
 }
 
 void reset_tout_val(){
-        tout_val.it_interval.tv_sec = 0;
-        tout_val.it_interval.tv_usec = 0;
-        tout_val.it_value.tv_sec = 0;
-        tout_val.it_value.tv_usec = 500000;
+	tout_val.it_interval.tv_sec = 0;
+       	tout_val.it_interval.tv_usec = 100000;
+       	tout_val.it_value.tv_sec = 0;
+       	tout_val.it_value.tv_usec = 100000;
 }
-

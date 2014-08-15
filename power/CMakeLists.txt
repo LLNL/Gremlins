@@ -1,11 +1,12 @@
 #INCLUDE_DIRECTORIES (${MPI_C_INCLUDE_PATH} /g/g90/maiterth/Repositories/libmsr/include)
-INCLUDE_DIRECTORIES (${MPI_C_INCLUDE_PATH} ${LIBMSR_INCLUDE_PATH})
+INCLUDE_DIRECTORIES (${MPI_C_INCLUDE_PATH} ${LIBMSR_INCLUDE_PATH}) 
+#specify include with -DLIB...
 
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 LINK_DIRECTORIES(${LIBMSR_LIB_PATH})
 
 add_wrapped_file(powerMeter.c   powerMeter.w)
-add_library(PowerMeter SHARED powerMeter.c)
+add_library(PowerMeter SHARED powerMeter.c ${CMAKE_CURRENT_SOURCE_DIR}/../utils/utils.c)
 target_link_libraries(PowerMeter ${MPI_C_LIBRARIES} ${LIBMSR_LIBRARIES} )
 target_link_libraries(PowerMeter dl)
 
@@ -24,6 +25,15 @@ add_library(TapasyasPersonalGremlin SHARED tapasyasPersonalGremlin.c ${CMAKE_CUR
 target_link_libraries(TapasyasPersonalGremlin ${MPI_C_LIBRARIES} ${LIBMSR_LIBRARIES} )
 target_link_libraries(TapasyasPersonalGremlin dl)
 
+add_wrapped_file(terseInfo.c   terseInfo.w)
+add_library(TerseInfo SHARED terseInfo.c ${CMAKE_CURRENT_SOURCE_DIR}/../utils/utils.c)
+target_link_libraries(TerseInfo ${MPI_C_LIBRARIES} ${LIBMSR_LIBRARIES} )
+target_link_libraries(TerseInfo dl)
+
+
+
 #SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-install(TARGETS PowerBound GlobalPowerBound PowerMeter TapasyasPersonalGremlin DESTINATION lib)
+install(TARGETS PowerBound GlobalPowerBound PowerMeter TapasyasPersonalGremlin
+TerseInfo DESTINATION lib)
+#install(TARGETS TapasyasPersonalGremlin DESTINATION lib)

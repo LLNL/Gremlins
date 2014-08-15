@@ -100,10 +100,10 @@ void printData(int i);
 	
 		//check specific powerbound for package n 	
 		char buffer[14];
-		snprintf(buffer,sizeof(buffer),"POWERBOUND%d",(rank/procsPerPackage));
+		snprintf(buffer,sizeof(buffer),"POWER_CAP%d",(rank/procsPerPackage));
 		retVal = get_env_int(buffer,&watts);	
 		if(retVal == -1 ){ //if this fails check general powerbound
-			retVal = get_env_int("POWERBOUND",&watts);
+			retVal = get_env_int("POWER_CAP",&watts);
 		}
 		if(retVal==-1){
 			fprintf(stdout, "POWERBOUND not set. Using default. Set environment variable!\n");
@@ -113,9 +113,13 @@ void printData(int i);
                 	lim.bits = 0;
           		set_rapl_limit(socket, &lim, NULL, NULL);
 		}
+		
+		FILE* fp;
+		fp = getFileID(rank);
 		get_rapl_limit(socket,&Px_1, &Px_2, &Px_DRAM);
-		fprintf(stdout, "PKG%d, Limit1\n",socket);
-		dump_rapl_limit(&Px_1);
+		fprintf(fp, "PKG%d, Limit1\n",socket);
+		dump_rapl_limit(&Px_1,fp);
+		getFileID(-2);
 	}	
 	PMPI_Barrier(MPI_COMM_WORLD);
 {{endfn}}
@@ -123,7 +127,7 @@ void printData(int i);
 
 {{fn foo MPI_Finalize}}
 	PMPI_Barrier(MPI_COMM_WORLD);
-	if(rank == 0)
+	if(rank%procsPerPackage == 0)
 	{
 		finalize_msr;
 	}
