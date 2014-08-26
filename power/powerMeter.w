@@ -58,6 +58,8 @@ static int rank;
 static int size;
 
 int retVal;
+static int interval_s;
+static int interval_us;
 static int procsPerPackage;
 
 #ifndef SET_UP
@@ -74,6 +76,7 @@ void printData(int i);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
  	
 	retVal = get_env_int("PROCS_PER_PACKAGE",&procsPerPackage);
+
 	if(retVal<0){
 		char entry[3];
 		int cpuid = sched_getcpu();
@@ -81,7 +84,17 @@ void printData(int i);
 		procsPerPackage = atoi(entry); //value of siblings is stored as procsPerPackage
 		fprintf(stderr,"PROCS_PER_PACKAGE not set! Assuming %d processor per package. Set environment vaiable!\n",procsPerPackage);
         }
-
+	
+	retVal = get_env_int("INTERVAL_S",&interval_s);
+	if(retVal<0){
+		interval_s = 0;
+		fprintf(stderr,"INTERVAL_S not set! Set environment vaiable!\n",procsPerPackage);
+	}	
+	retVal = get_env_int("INTERVAL_US",&interval_us);
+	if(retVal<0){
+		interval_us  = 500000; //set default to every 0.5sec
+		fprintf(stderr,"INTERVAL_US not set! Default time: %duSec; Set environment vaiable!\n",interval_us);
+	}	
 	
 	if(rank % procsPerPackage == 0)
 	{	
@@ -148,6 +161,6 @@ void printData(int i){
 void reset_tout_val(){
 	tout_val.it_interval.tv_sec = 0;
        	tout_val.it_interval.tv_usec = 0;
-       	tout_val.it_value.tv_sec = 0;
-       	tout_val.it_value.tv_usec = 100000;
+       	tout_val.it_value.tv_sec = interval_s;
+       	tout_val.it_value.tv_usec = interval_us;
 }

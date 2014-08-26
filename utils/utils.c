@@ -124,6 +124,7 @@ FILE *getFileID(int rank){
 		
 		        if (filePath != NULL){
 		        	char fileName[4096];
+		        	//sprintf(fileName, "%s%s%s%s%d%s", filePath,"_", hname,"_",rank, "_gremlin.out");
 		        	sprintf(fileName, "%s%s%s%d%s", filePath, hname,"_",rank, "_gremlin.out");
 		        	writeFile = fopen(fileName, "a");
 		
