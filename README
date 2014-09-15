@@ -55,13 +55,16 @@ Build using cmake
 E.g.:
 mkdir BUILD
 cd BUILD
-cmake .. -DLIBMSR_HOME=/*YOUR_PATH_TO_LIBMSR_HOME*/libmsr -DCMAKE_INSTALL_PREFIX=../INSTALL -DCMAKE_BUILD_TYPE=RelWithDebugInfo -DRANDOM_ACCESS_HOME
+cmake .. -DLIBMSR_HOME=/*YOUR_PATH_TO_LIBMSR_HOME*/libmsr -DCMAKE_INSTALL_PREFIX=../INSTALL -DCMAKE_BUILD_TYPE=RelWithDebugInfo -DRANDOM_ACCESS_HOME=/*YOUR_PATH_TO_RANDOM_ACCESS*/
 make 
 make install 
 
 This will create a BUILD directory and configure all out of source configure files.
 Calling make in the BUILD directory creates the files as specified by cmake.
 make install copies the binaries to the INSTALL folder.
+
+LIBMSR can be obtained from Barry Roundtree 
+RANDOM_ACCESS from Marc Casas Guix
 
 For changes see the cmake manual or use ccmake in the BUILD directory
 

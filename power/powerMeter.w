@@ -88,7 +88,7 @@ void printData(int i);
 	retVal = get_env_int("INTERVAL_S",&interval_s);
 	if(retVal<0){
 		interval_s = 0;
-		fprintf(stderr,"INTERVAL_S not set! Set environment vaiable!\n",procsPerPackage);
+		fprintf(stderr,"INTERVAL_S not set! Set environment vaiable!\n");
 	}	
 	retVal = get_env_int("INTERVAL_US",&interval_us);
 	if(retVal<0){
