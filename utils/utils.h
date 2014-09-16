@@ -50,5 +50,6 @@
 int get_env_int(const char *name, int *);
 void get_cpuinfo_entry(int processor, char key[], char value[]); 
 FILE* getFileID(int rank);
+int getProcsPerNode();
 
 #endif /* GRMELINS_UTILS_H_ */

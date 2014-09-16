@@ -113,13 +113,19 @@ void printData(int i);
                 	lim.bits = 0;
           		set_rapl_limit(socket, &lim, NULL, NULL);
 		}
-		
-		FILE* fp;
-		fp = getFileID(rank);
-		get_rapl_limit(socket,&Px_1, &Px_2, &Px_DRAM);
-		fprintf(fp, "PKG%d, Limit1\n",socket);
-		dump_rapl_limit(&Px_1,fp);
-		getFileID(-2);
+		int quite;
+		retVal=get_env_int("QUITE", &quite);
+		if(retVal==-1  // QUITE not set
+		   || atoi(quite)==0 //QUITE set to 0
+		  )
+		{
+			FILE* fp;
+			fp = getFileID(rank);
+			get_rapl_limit(socket,&Px_1, &Px_2, &Px_DRAM);
+			fprintf(fp, "PKG%d, Limit1\n",socket);
+			dump_rapl_limit(&Px_1,fp);
+			getFileID(-2);
+		}
 	}	
 	PMPI_Barrier(MPI_COMM_WORLD);
 {{endfn}}

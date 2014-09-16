@@ -50,8 +50,7 @@
 #include "utils.h"
 
 #include "msr_core.h"
-#include "msr_rapl.h"
-
+#include "msr_rapl.h" 
 
 static struct itimerval tout_val;
 static int rank;
@@ -60,7 +59,7 @@ static int size;
 int retVal;
 static int interval_s;
 static int interval_us;
-static int procsPerPackage;
+static int procsPerNode;
 
 #ifndef SET_UP
 static struct timeval startTime;
@@ -75,13 +74,10 @@ void printData(int i);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
  	
-	retVal = get_env_int("PROCS_PER_PACKAGE",&procsPerPackage);
+	retVal = get_env_int("PROCS_PER_NODE",&procsPerNode);
 	if(retVal<0){
-		char entry[3];
-		int cpuid = sched_getcpu();
-	        get_cpuinfo_entry(cpuid,"siblings",entry);
-		procsPerPackage = atoi(entry); //value of siblings is stored as procsPerPackage
-		fprintf(stderr,"PROCS_PER_PACKAGE not set! Assuming %d processor per package. Set environment vaiable!\n",procsPerPackage);
+		procsPerNode = getProcsPerNode();		
+		fprintf(stderr,"PROCS_PER_NODE not set! Assuming %d processor per node. Set environment vaiable!\n",procsPerNode);
         }
 
         retVal = get_env_int("INTERVAL_S",&interval_s);
@@ -95,7 +91,7 @@ void printData(int i);
                 fprintf(stderr,"INTERVAL_US not set! Default time: %duSec; Set environment vaiable!\n",interval_us);
         }
 
-	if(rank % procsPerPackage == 0)
+	if(rank % procsPerNode == 0)
 	{	
 		FILE *writeFile = getFileID(rank);	
 		init_msr();		
@@ -110,7 +106,7 @@ void printData(int i);
 {{fn foo MPI_Finalize}}
 	PMPI_Barrier(MPI_COMM_WORLD);
 	
-	if(rank % procsPerPackage == 0)
+	if(rank % procsPerNode == 0)
 	{
 		tout_val.it_interval.tv_sec = 0;
         	tout_val.it_interval.tv_usec = 0;

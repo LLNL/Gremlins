@@ -125,7 +125,7 @@ FILE *getFileID(int rank){
 		        if (filePath != NULL){
 		        	char fileName[4096];
 		        	//sprintf(fileName, "%s%s%s%s%d%s", filePath,"_", hname,"_",rank, "_gremlin.out");
-		        	sprintf(fileName, "%s%s%s%d%s", filePath, hname,"_",rank, "_gremlin.out");
+		        	sprintf(fileName, "%s/%s_%d_gremlin.out", filePath, hname,rank);
 		        	writeFile = fopen(fileName, "a");
 		
 		        	if (writeFile == NULL){
@@ -145,4 +145,28 @@ FILE *getFileID(int rank){
 		}
 	}
 
+}
+
+int getProcsPerNode(){
+	int processors=-1;//-1 since the while done loop counts one time extra when finished.
+	char* key="processor";
+        int i;
+        FILE *fp;
+        int keylen = strlen(key);
+        char buf[1024];
+        fp = fopen("/proc/cpuinfo", "r");
+	int done=0;
+	while(!done){
+                do{
+                        fgets(buf, sizeof(buf), fp);
+			if(feof(fp)){
+				done=1;
+				break;
+			}
+                }while(strncmp(key, buf, keylen) != 0);
+		processors+=1;
+		
+        }
+	fclose(fp);
+	return processors;
 }
