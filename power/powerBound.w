@@ -116,7 +116,7 @@ void printData(int i);
 		int quite;
 		retVal=get_env_int("QUITE", &quite);
 		if(retVal==-1  // QUITE not set
-		   || atoi(quite)==0 //QUITE set to 0
+		   || quite==0 //QUITE set to 0
 		  )
 		{
 			FILE* fp;
