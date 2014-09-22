@@ -1,1 +1,5 @@
 By running carefully-calibrated threads alongside codes of interest, we can emulate reduced bandwidth and capacity across the whole of the memory hierarchy.  
+
+The following lines might be needed in your msub-script for papi:
+. /usr/local/tools/dotkit/init.sh
+use papi

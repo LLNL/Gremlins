@@ -95,6 +95,7 @@ void printData(int i);
 	{	
 		FILE *writeFile = getFileID(rank);	
 		init_msr();		
+		printData(0); // initial Print
 		reset_tout_val();
 		setitimer(ITIMER_REAL, &tout_val, 0);
 		signal(SIGALRM, printData);
@@ -107,12 +108,13 @@ void printData(int i);
 	PMPI_Barrier(MPI_COMM_WORLD);
 	
 	if(rank % procsPerNode == 0)
-	{
+	{	
 		tout_val.it_interval.tv_sec = 0;
         	tout_val.it_interval.tv_usec = 0;
         	tout_val.it_value.tv_sec = 0;
         	tout_val.it_value.tv_usec = 0;
 		setitimer(ITIMER_REAL, &tout_val, 0);
+		printData(0); // final Print
 		finalize_msr();
 		getFileID(-2);
 	}
