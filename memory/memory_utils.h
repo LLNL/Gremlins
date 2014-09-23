@@ -39,20 +39,27 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Written by Matthias Maiterth
+// Written by Marc Casas Guix and Matthias Maiterth
 //////////////////////////////////////////////////////////////////////////////
 
-#include "fault_injector.h"
+#ifndef MEMORY_UTILS_H
+#define MEMORY_UTILS_H
 
-{{fn foo MPI_Init}}
-        {{callfn}}
-       	GREMLIN_initExperiment(); 
-	PMPI_Barrier(MPI_COMM_WORLD);
-{{endfn}}
+#include <mpi.h>
 
+//signal handler
+void signal_callback_handler(int signum);
 
-{{fn foo MPI_Finalize}}
-        PMPI_Barrier(MPI_COMM_WORLD);
-	GREMLIN_endExperiment();	
-        {{callfn}}
-{{endfn}}
+//Assigns the contamination threads to the extra MPI tasks
+int Contamination( MPI_Comm comm);
+
+//Cache capacity interference
+void random_access_nothreading_(long long int n_);
+
+//Mem BW interference
+void measurement_bandwidth_nothreading_(long long int n_);
+	
+//An extra communicator the main application will use as MPI_Comm_World is created
+int Create_commu( MPI_Comm comm);
+
+#endif /* MEMORY_UTILS_H */

@@ -38,6 +38,18 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# Written by Matthias Maiterth
 ##############################################################################
+INCLUDE_DIRECTORIES ( ${MPI_C_INCLUDE_PATH} /usr/local/tools/papi-4.2.1/include  ${CMAKE_CURRENT_SOURCE_DIR} )
 
-Performance at exascale will not only be constrained by power but by thermal considerations as well.  In addition, continuous execution at high power requires active cooling which in turn consumes more power.  Our Thermal GREMLIN allows developers access to per-core temperature sensors to track how code creates heat.  We are exploring the possibility of augmenting this gremlin with an interface to package thermal capping:  when the processor reaches the user-specified limit, performance degrades until the lower temperature is restored.
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+add_wrapped_file(memory_gremlin.c memory_gremlin.w)
+add_library(Memory_gremlin SHARED memory_gremlin.c memory_utils.c
+${CMAKE_CURRENT_SOURCE_DIR}/../utils/identity.c)
+target_link_libraries(Memory_gremlin ${MPI_C_LIBRARIES} )
+target_link_libraries(Memory_gremlin dl)
+target_link_libraries(Memory_gremlin papi)
+
+install(TARGETS Memory_gremlin DESTINATION lib)

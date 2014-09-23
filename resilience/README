@@ -40,4 +40,11 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ##############################################################################
 
-Performance at exascale will not only be constrained by power but by thermal considerations as well.  In addition, continuous execution at high power requires active cooling which in turn consumes more power.  Our Thermal GREMLIN allows developers access to per-core temperature sensors to track how code creates heat.  We are exploring the possibility of augmenting this gremlin with an interface to package thermal capping:  when the processor reaches the user-specified limit, performance degrades until the lower temperature is restored.
+
+The fault_injector creates a new thread, that sets faults using SIGUSR1 and SIGUSR2
+Fault rates may be set using environment variable FAULT_RATE [errors/hour].
+
+If the program that is run with this gremlin does not handle faults, unexpected behavior is likely to occur.
+
+The faulttolerant_example folder contains a version of lulesh that handles these errors and shows the usage of 
+the gremlin and fault tolerance by example.

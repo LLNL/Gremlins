@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2013, Lawrence Livermore National Security, LLC.
+// Copyright (c) 2013-2014, Lawrence Livermore National Security, LLC.
 // Produced at the Lawrence Livermore National Laboratory
 //
 // Written by Martin Schulz et al <schulzm@llnl.gov>
@@ -38,7 +38,16 @@
 // LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// Written by Matthias Maiterth
 //////////////////////////////////////////////////////////////////////////////
+
+/*
+* Control Power by setting a global power cap.
+* Specify PROCS_PER_PACKAGE to indicate how many processors are used per package
+* POWER_CAP_GLOBAL is the maximum Power all Processes/Packages are allowed to consume. 
+*/
+
 #include <stdio.h>
 #include <sys/time.h>
 #include <stddef.h>
@@ -111,7 +120,7 @@ void printData(int i);
 		if(size%procsPerPackage)nPackages++;
 		watts = powerbound_global / nPackages;
 		if(retVal == 0){
-			printf("Powerbound - local:%d , global:%d\n",watts,powerbound_global);	
+			fprintf(stdout, "Powerbound - local:%d , global:%d\n",watts,powerbound_global);	
 		
 			lim.watts = watts;
           		lim.seconds = timewindow;

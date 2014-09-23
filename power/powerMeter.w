@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2013, Lawrence Livermore National Security, LLC.
+// Copyright (c) 2013-2014, Lawrence Livermore National Security, LLC.
 // Produced at the Lawrence Livermore National Laboratory
 //
 // Written by Martin Schulz et al <schulzm@llnl.gov>
@@ -38,7 +38,18 @@
 // LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// Written by Matthias Maiterth
 //////////////////////////////////////////////////////////////////////////////
+
+/*
+* Used to print per Node data (2 Sockets assumed so far)
+* Set PROCS_PER_NODE 
+* set INTERVAL_S  for interval between measurements in seconds.
+* and INTERVAL_US for interval  between measurements in microseconds.
+* One file per Node will be created at NODE_OUTPUT_PATH (see utils/utils.c)
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -60,7 +71,7 @@ static int size;
 int retVal;
 static int interval_s;
 static int interval_us;
-static int procsPerPackage;
+static int procsPerNode;
 
 #ifndef SET_UP
 static struct timeval startTime;
@@ -71,71 +82,65 @@ void reset_tout_val();
 void printData(int i);
 
 {{fn foo MPI_Init}}
-	{{callfn}}
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	MPI_Comm_size(MPI_COMM_WORLD, &size);
- 	
-	retVal = get_env_int("PROCS_PER_PACKAGE",&procsPerPackage);
+        {{callfn}}
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-	if(retVal<0){
-		char entry[3];
-		int cpuid = sched_getcpu();
-	        get_cpuinfo_entry(cpuid,"siblings",entry);
-		procsPerPackage = atoi(entry); //value of siblings is stored as procsPerPackage
-		fprintf(stderr,"PROCS_PER_PACKAGE not set! Assuming %d processor per package. Set environment vaiable!\n",procsPerPackage);
+        retVal = get_env_int("PROCS_PER_NODE",&procsPerNode);
+        if(retVal<0){
+                procsPerNode = getProcsPerNode();
+                fprintf(stderr,"PROCS_PER_NODE not set! Assuming %d processor per node. Set environment variable!\n",procsPerNode);
         }
-	
-	retVal = get_env_int("INTERVAL_S",&interval_s);
-	if(retVal<0){
-		interval_s = 0;
-		fprintf(stderr,"INTERVAL_S not set! Set environment vaiable!\n");
-	}	
-	retVal = get_env_int("INTERVAL_US",&interval_us);
-	if(retVal<0){
-		interval_us  = 500000; //set default to every 0.5sec
-		fprintf(stderr,"INTERVAL_US not set! Default time: %duSec; Set environment vaiable!\n",interval_us);
-	}	
-	
-	if(rank % procsPerPackage == 0)
-	{	
-		FILE *writeFile = getFileID(rank);	
-		init_msr();		
-		reset_tout_val();
-		setitimer(ITIMER_REAL, &tout_val, 0);
-		
-		signal(SIGALRM, printData);
-	}
-	PMPI_Barrier(MPI_COMM_WORLD);
+
+        retVal = get_env_int("INTERVAL_S",&interval_s);
+        if(retVal<0){
+                interval_s = 0;
+                fprintf(stderr,"INTERVAL_S not set! Set environment vaiable!\n");
+        }
+        retVal = get_env_int("INTERVAL_US",&interval_us);
+        if(retVal<0){
+                interval_us  = 500000; //set default to every 0.5sec
+                fprintf(stderr,"INTERVAL_US not set! Default time: %duSec; Set environment vaiable!\n",interval_us);
+        }
+
+        if(rank % procsPerNode == 0)
+        {
+                FILE *writeFile = getFileID(rank);
+                init_msr();
+                printData(0); // initial Print
+                reset_tout_val();
+                setitimer(ITIMER_REAL, &tout_val, 0);
+                signal(SIGALRM, printData);
+        }
+        PMPI_Barrier(MPI_COMM_WORLD);
 {{endfn}}
 
 
 {{fn foo MPI_Finalize}}
-	PMPI_Barrier(MPI_COMM_WORLD);
-	
-	if(rank % procsPerPackage == 0)
-	{
-		tout_val.it_interval.tv_sec = 0;
-        	tout_val.it_interval.tv_usec = 0;
-        	tout_val.it_value.tv_sec = 0;
-        	tout_val.it_value.tv_usec = 0;
-		setitimer(ITIMER_REAL, &tout_val, 0);
-		finalize_msr();
-		getFileID(-2);
-	}
-	{{callfn}}
+        PMPI_Barrier(MPI_COMM_WORLD);
+
+        if(rank % procsPerNode == 0)
+        {
+                tout_val.it_interval.tv_sec = 0;
+                tout_val.it_interval.tv_usec = 0;
+                tout_val.it_value.tv_sec = 0;
+                tout_val.it_value.tv_usec = 0;
+                setitimer(ITIMER_REAL, &tout_val, 0);
+                printData(0); // final Print
+                finalize_msr();
+                getFileID(-2);
+        }
+        {{callfn}}
 {{endfn}}
 
 
 void printData(int i){
-//	signal(SIGALRM, printData);
 	
 	if(!init){
 		init = 1;
 		gettimeofday(&startTime, NULL);
 	}
-///////////
 	FILE *writeFile = getFileID(-1);
-///////////	
 
 	struct rapl_data r1,r2;
 	

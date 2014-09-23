@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2013, Lawrence Livermore National Security, LLC.
+// Copyright (c) 2013-2014, Lawrence Livermore National Security, LLC.
 // Produced at the Lawrence Livermore National Laboratory
 //
 // Written by Martin Schulz et al <schulzm@llnl.gov>
@@ -38,7 +38,19 @@
 // LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// Written by Matthias Maiterth
 //////////////////////////////////////////////////////////////////////////////
+
+/*
+* Used to print per Node data (2 Sockets assumed so far)
+* Set PROCS_PER_NODE 
+* set INTERVAL_S  for interval between measurements in seconds.
+* and INTERVAL_US for interval  between measurements in microseconds.
+* One file per Node will be created at NODE_OUTPUT_PATH (see utils/utils.c)
+* Relies on libmsr library functions.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -155,11 +167,6 @@ void printData(int i){
         fprintf(writeFile, "\n");	
 	 
 	fflush(writeFile);
-
-/* reseting signals not needed if it_interl is set! */	
-//	signal(SIGALRM, printData);
-//	reset_tout_val(); 	//	not needed with interval?
-//	setitimer(ITIMER_REAL, &tout_val, 0);
 }
 
 void reset_tout_val(){

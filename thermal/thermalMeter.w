@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2013, Lawrence Livermore National Security, LLC.
+// Copyright (c) 2013-2014, Lawrence Livermore National Security, LLC.
 // Produced at the Lawrence Livermore National Laboratory
 //
 // Written by Martin Schulz et al <schulzm@llnl.gov>
@@ -38,6 +38,8 @@
 // LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// Written by Matthias Maiterth
 //////////////////////////////////////////////////////////////////////////////
 #include <stdio.h>
 #include <stdlib.h>
@@ -75,9 +77,8 @@ void printData(int i);
         char entry[3];
         if(retVal<0){
 		int cpuid=0;
-//        	int cpuid = sched_getcpu();
                 get_cpuinfo_entry(cpuid,"siblings",entry);
-                procsPerPackage = atoi(entry); //value of siblings is stored as procsPerPackage
+                procsPerPackage = atoi(entry); 
                 fprintf(stderr,"PROCS_PER_PACKAGE not set! Assuming %d processor per package. Set environment vaiable!\n",procsPerPackage);
         }
 
@@ -129,14 +130,9 @@ void printData(int i){
 	FILE *writeFile = getFileID(-1);
 
 	fprintf(writeFile, "Temp@%3.2lf: ",timestamp);
-//	fprintf(stderr, "Temp@%3.2lf: ",timestamp);
 	dump_thermal_terse(writeFile);
-//	dump_thermal_terse(stdout);
 	fprintf(writeFile, "\n");
 	fflush(writeFile);
-//	fprintf(stderr, "\n");
-	
-//	fclose(writeFile);
 	
         reset_tout_val();
         setitimer(ITIMER_REAL, &tout_val, 0);
