@@ -1,6 +1,47 @@
-#INCLUDE_DIRECTORIES (${MPI_C_INCLUDE_PATH} /g/g90/maiterth/Repositories/libmsr/include)
+##############################################################################
+# Copyright (c) 2013-2014, Lawrence Livermore National Security, LLC.
+# Produced at the Lawrence Livermore National Laboratory
+#
+# Written by Martin Schulz et al <schulzm@llnl.gov>
+# LLNL-CODE-645436
+# All rights reserved.
+#
+# This file is part of the GREMLINS framework.
+# For details, see http://scalability.llnl.gov/gremlins.
+# Please read the LICENSE file for further information.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the disclaimer below.
+#
+#     * Redistributions in binary form must reproduce the above
+#       copyright notice, this list of conditions and the disclaimer (as
+#       noted below) in the documentation and/or other materials
+#       provided with the distribution.
+#
+#     * Neither the name of the LLNS/LLNL nor the names of its
+#       contributors may be used to endorse or promote products derived
+#       from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL LAWRENCE
+# LIVERMORE NATIONAL SECURITY, LLC, THE U.S. DEPARTMENT OF ENERGY OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+# PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+# LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# Written by Matthias Maiterth
+##############################################################################
 INCLUDE_DIRECTORIES (${MPI_C_INCLUDE_PATH} ${LIBMSR_INCLUDE_PATH}) 
-#specify include with -DLIB...
 
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 LINK_DIRECTORIES(${LIBMSR_LIB_PATH})
@@ -20,20 +61,10 @@ add_library(PowerBound SHARED powerBound.c ${CMAKE_CURRENT_SOURCE_DIR}/../utils/
 target_link_libraries(PowerBound ${MPI_C_LIBRARIES} ${LIBMSR_LIBRARIES} )
 target_link_libraries(PowerBound dl)
 
-add_wrapped_file(tapasyasPersonalGremlin.c   tapasyasPersonalGremlin.w)
-add_library(TapasyasPersonalGremlin SHARED tapasyasPersonalGremlin.c ${CMAKE_CURRENT_SOURCE_DIR}/../utils/utils.c)
-target_link_libraries(TapasyasPersonalGremlin ${MPI_C_LIBRARIES} ${LIBMSR_LIBRARIES} )
-target_link_libraries(TapasyasPersonalGremlin dl)
-
 add_wrapped_file(terseInfo.c   terseInfo.w)
 add_library(TerseInfo SHARED terseInfo.c ${CMAKE_CURRENT_SOURCE_DIR}/../utils/utils.c)
 target_link_libraries(TerseInfo ${MPI_C_LIBRARIES} ${LIBMSR_LIBRARIES} )
 target_link_libraries(TerseInfo dl)
 
 
-
-#SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-install(TARGETS PowerBound GlobalPowerBound PowerMeter TapasyasPersonalGremlin
-TerseInfo DESTINATION lib)
-#install(TARGETS TapasyasPersonalGremlin DESTINATION lib)
+install(TARGETS PowerBound GlobalPowerBound PowerMeter TerseInfo DESTINATION lib)

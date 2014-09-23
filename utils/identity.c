@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2013, Lawrence Livermore National Security, LLC.
+// Copyright (c) 2013-2014, Lawrence Livermore National Security, LLC.
 // Produced at the Lawrence Livermore National Laboratory
 //
 // Written by Martin Schulz et al <schulzm@llnl.gov>
@@ -38,6 +38,8 @@
 // LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// Written by Marc Casas Guix
 //////////////////////////////////////////////////////////////////////////////
 #include <stdio.h>
 #include <pthread.h>

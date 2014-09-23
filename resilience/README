@@ -38,21 +38,13 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-# Written by Matthias Maiterth
 ##############################################################################
 
-cmake_minimum_required(VERSION 2.6)
-project(gremlins C CXX)
 
-find_package(MPI)
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmakefiles;${CMAKE_MODULE_PATH}")
-find_package(Msr)
-INCLUDE(WrapConfig)
+The fault_injector creates a new thread, that sets faults using SIGUSR1 and SIGUSR2
+Fault rates may be set using environment variable FAULT_RATE [errors/hour].
 
-include_directories(./utils)
+If the program that is run with this gremlin does not handle faults, unexpected behavior is likely to occur.
 
-ADD_SUBDIRECTORY(power)
-ADD_SUBDIRECTORY(thermal)
-ADD_SUBDIRECTORY(memory)
-ADD_SUBDIRECTORY(resilience)
+The faulttolerant_example folder contains a version of lulesh that handles these errors and shows the usage of 
+the gremlin and fault tolerance by example.

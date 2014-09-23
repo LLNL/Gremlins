@@ -41,18 +41,15 @@
 #
 # Written by Matthias Maiterth
 ##############################################################################
+INCLUDE_DIRECTORIES ( ${MPI_C_INCLUDE_PATH} /usr/local/tools/papi-4.2.1/include  ${CMAKE_CURRENT_SOURCE_DIR} )
 
-cmake_minimum_required(VERSION 2.6)
-project(gremlins C CXX)
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-find_package(MPI)
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmakefiles;${CMAKE_MODULE_PATH}")
-find_package(Msr)
-INCLUDE(WrapConfig)
+add_wrapped_file(memory_gremlin.c memory_gremlin.w)
+add_library(Memory_gremlin SHARED memory_gremlin.c memory_utils.c
+${CMAKE_CURRENT_SOURCE_DIR}/../utils/identity.c)
+target_link_libraries(Memory_gremlin ${MPI_C_LIBRARIES} )
+target_link_libraries(Memory_gremlin dl)
+target_link_libraries(Memory_gremlin papi)
 
-include_directories(./utils)
-
-ADD_SUBDIRECTORY(power)
-ADD_SUBDIRECTORY(thermal)
-ADD_SUBDIRECTORY(memory)
-ADD_SUBDIRECTORY(resilience)
+install(TARGETS Memory_gremlin DESTINATION lib)

@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2013, Lawrence Livermore National Security, LLC.
+// Copyright (c) 2013-2014, Lawrence Livermore National Security, LLC.
 // Produced at the Lawrence Livermore National Laboratory
 //
 // Written by Martin Schulz et al <schulzm@llnl.gov>
@@ -38,7 +38,18 @@
 // LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// Written by Matthias Maiterth
 //////////////////////////////////////////////////////////////////////////////
+
+/*
+*Control Power by setting a per package power cap.
+* Specify PROCS_PER_PACKAGE to indicate how many processors are used per package.
+* POWER_CAP is the maximum Power a single Package is allowed to consume.
+* Individual power caps can be set by setting POWER_CAPx 
+* (e.g POWER_CAP7, for powercap on 7th Socket)
+*/
+
 #include <stdio.h>
 #include <sys/time.h>
 #include <stddef.h>
@@ -92,7 +103,7 @@ void printData(int i);
 		fprintf(stderr, "PROCS_PER_PACKAGE not set! Assuming %d processors per package. Set environment variable!\n", procsPerPackage);
 	}
 	if(rank%procsPerPackage == 0){
-		init_msr(); //only needed once per MPI job or per package?
+		init_msr(); //only needed once per package
 		
 		int socket;
 		get_cpuinfo_entry(cpuid,"physical id", entry);
@@ -106,7 +117,7 @@ void printData(int i);
 			retVal = get_env_int("POWER_CAP",&watts);
 		}
 		if(retVal==-1){
-			fprintf(stdout, "POWERBOUND not set. Using default. Set environment variable!\n");
+			fprintf(stdout, "POWER_CAP not set. Using default. Set environment variable!\n");
 		}else if(retVal==0){
 			lim.watts=watts;
 			lim.seconds = timewindow;
