@@ -41,10 +41,13 @@
 ##############################################################################
 
 
-The fault_injector creates a new thread, that sets faults using SIGUSR1 and SIGUSR2
-Fault rates may be set using environment variable FAULT_RATE [errors/hour].
+The fault_injector creates a new thread, that sets faults using SIGUSR1 and 
+SIGUSR2 Fault rates may be set using environment variable FAULT_RATE 
+[errors/hour].
 
-If the program that is run with this gremlin does not handle faults, unexpected behavior is likely to occur.
+Fault notifications are passed to the application using C++ exceptions. If the 
+program that is run with this GREMLIN does not handle these faults properly, 
+unexpected behavior is likely to occur. 
 
-The faulttolerant_example folder contains a version of lulesh that handles these errors and shows the usage of 
-the gremlin and fault tolerance by example.
+The faulttolerant_example folder contains a version of lulesh that handles 
+these errors and shows the usage of the gremlin and fault tolerance by example.
