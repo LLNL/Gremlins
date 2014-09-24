@@ -48,7 +48,6 @@ project(gremlins C CXX)
 find_package(MPI)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmakefiles;${CMAKE_MODULE_PATH}")
 find_package(Msr)
-INCLUDE(WrapConfig)
 find_package(wrap)
 
 include_directories(./utils)
